@@ -37,19 +37,18 @@ class CollisionSimulation(QWidget):
             weight = np.pi * (radius**2)
             self.balls.append(Ball(x, y, radius, vx, vy, weight))
 
-        self.quad_tree = QuadTree(QRectF(0, 0, width, height), 4)
+        self.quad_tree = QuadTree(QRectF(0, 0, width, height))
 
     def update_simulation(self):
         """Метод обновляет состояние моделирования на каждом шаге таймера."""
         if self.quad_tree is not None:
-            self.quad_tree = QuadTree(QRectF(0, 0, self.width(), self.height()), 4)
+            self.quad_tree = QuadTree(QRectF(0, 0, self.width(), self.height()))
             for ball in self.balls:
                 self.quad_tree.insert(ball)
 
             checked_pairs = set()
             for ball in self.balls:
                 ball.move()
-                # Проверка на столкновение со стенками.
                 if ball.x - ball.radius < 0:
                     ball.x = ball.radius
                     ball.vx *= -1
@@ -63,15 +62,14 @@ class CollisionSimulation(QWidget):
                     ball.y = self.height() - ball.radius
                     ball.vy *= -1
 
-                # Поиск столкновений с другими шарами.
-                area = QRectF(
+                range = QRectF(
                     ball.x - ball.radius,
                     ball.y - ball.radius,
                     ball.radius * 2,
                     ball.radius * 2,
                 )
                 found = []
-                self.quad_tree.query(area, found)
+                self.quad_tree.query(range, found)
 
                 for other in found:
                     if (
@@ -140,14 +138,15 @@ class CollisionSimulation(QWidget):
 
     def draw_quad_tree(self, painter, qt):
         """Рекурсивный метод отрисовки квадродерева."""
+        if qt is None:
+            return
+
+        painter.drawRect(qt.boundary)
         if qt.divided:
-            painter.drawRect(qt.boundary)
             self.draw_quad_tree(painter, qt.northeast)
             self.draw_quad_tree(painter, qt.northwest)
             self.draw_quad_tree(painter, qt.southeast)
             self.draw_quad_tree(painter, qt.southwest)
-        else:
-            painter.drawRect(qt.boundary)
 
     def resizeEvent(self, event):
         """Метод вызывается при изменении размера окна."""
