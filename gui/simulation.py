@@ -62,14 +62,14 @@ class CollisionSimulation(QWidget):
                     ball.y = self.height() - ball.radius
                     ball.vy *= -1
 
-                range = QRectF(
+                area = QRectF(
                     ball.x - ball.radius,
                     ball.y - ball.radius,
                     ball.radius * 2,
                     ball.radius * 2,
                 )
                 found = []
-                self.quad_tree.query(range, found)
+                self.quad_tree.query(area, found)
 
                 for other in found:
                     if (
@@ -121,14 +121,14 @@ class CollisionSimulation(QWidget):
         """Метод отрисовки виджета."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setPen(QPen(QColor(226, 139, 0)))
+        painter.setPen(QPen(QColor(255, 153, 255)))
 
         if self.quad_tree is not None:
             self.draw_quad_tree(painter, self.quad_tree)
 
         painter.setPen(Qt.NoPen)
         for ball in self.balls:
-            painter.setBrush(QColor(255, 255, 255))
+            painter.setBrush(QColor(153, 255, 153))
             painter.drawEllipse(
                 ball.x - ball.radius,
                 ball.y - ball.radius,
